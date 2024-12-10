@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class MainController {
-    //Get http://localhost:8080/
     @GetMapping("/")
     @ResponseBody
     public int home() {
@@ -14,7 +13,6 @@ public class MainController {
         return 22;
     }
 
-    //Get http://localhost:8080/about
     @GetMapping("/about")
     @ResponseBody
     public String about() {
