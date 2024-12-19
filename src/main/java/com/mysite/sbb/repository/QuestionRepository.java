@@ -1,4 +1,4 @@
-package com.mysite.sbb;
+package com.mysite.sbb.repository;
 
 import com.mysite.sbb.entity.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
