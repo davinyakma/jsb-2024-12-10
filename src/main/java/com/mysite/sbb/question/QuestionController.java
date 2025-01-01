@@ -1,7 +1,6 @@
 package com.mysite.sbb.question;
 
-import com.mysite.sbb.AnswerForm;
-import com.mysite.sbb.QuestionForm;
+import com.mysite.sbb.answer.AnswerForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

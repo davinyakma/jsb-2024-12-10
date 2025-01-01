@@ -1,6 +1,5 @@
 package com.mysite.sbb.answer;
 
-import com.mysite.sbb.AnswerForm;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
 import jakarta.validation.Valid;
