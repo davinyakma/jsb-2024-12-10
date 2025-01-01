@@ -4,7 +4,7 @@ spring:
   application:
     name: rest
   profiles:
-    active: dev
+    active: test
   output:
     ansi:
       enabled: always
