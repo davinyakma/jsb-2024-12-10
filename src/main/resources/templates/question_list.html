@@ -9,6 +9,17 @@
                 <input type="text" id="search_kw" class="form-control" th:value="${kw}">
                 <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
             </div>
+            <div class="mt-2 text-end">
+                <!-- 정렬 옵션 버튼 -->
+                <div class="btn-group" role="group" aria-label="Sort Questions">
+                    <a th:href="@{/question/list(page=${paging.number}, kw=${kw}, sortBy='createDate')}"
+                       class="btn btn-outline-secondary"
+                       th:classappend="${sortBy == 'createDate' ? 'active' : ''}">최신순</a>
+                    <a th:href="@{/question/list(page=${paging.number}, kw=${kw}, sortBy='recommend')}"
+                       class="btn btn-outline-secondary"
+                       th:classappend="${sortBy == 'recommend' ? 'active' : ''}">추천순</a>
+                </div>
+            </div>
         </div>
     </div>
     <table class="table">

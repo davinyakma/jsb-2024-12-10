@@ -30,6 +30,11 @@ public class Answer {
     @ManyToOne
     private SiteUser author;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "answer_voter",
+            joinColumns = @JoinColumn(name = "answer_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     Set<SiteUser> voter;
 }

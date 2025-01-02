@@ -34,6 +34,11 @@ public class Question {
     @ManyToOne
     private SiteUser author;
 
-    @ManyToMany
-    Set<SiteUser> voter;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "question_voter",
+            joinColumns = @JoinColumn(name = "question_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<SiteUser> voter;
 }
