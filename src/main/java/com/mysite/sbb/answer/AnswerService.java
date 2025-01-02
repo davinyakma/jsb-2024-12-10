@@ -28,9 +28,16 @@ public class AnswerService {
         return this.answerRepository.findAll(pageable);
     }
 
-    public Page<Answer> getAnswersByQuestionId(Integer questionId, int page) {
+    public Page<Answer> getAnswersByQuestionId(Integer questionId, int page, String sortBy) {
         int pageSize = 10; // 기본 페이지 크기 설정
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable;
+
+        if ("recommend".equals(sortBy)) {
+            pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Order.desc("voter"))); // 추천순
+        } else {
+            pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Order.desc("createDate"))); // 최신순
+        }
+
         return answerRepository.findByQuestionId(questionId, pageable);
     }
 
