@@ -1,6 +1,8 @@
 package com.mysite.sbb.question;
 
 import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.category.Category;
+import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.user.SiteUser;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -41,4 +43,10 @@ public class Question {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<SiteUser> voter;
+
+    @ManyToOne
+    private Category category;
+
+    @OneToMany(mappedBy = "question")
+    private List<Comment> comments;
 }
