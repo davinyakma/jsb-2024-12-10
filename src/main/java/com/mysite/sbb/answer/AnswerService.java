@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,9 +29,16 @@ public class AnswerService {
         return this.answerRepository.findAll(pageable);
     }
 
-    public Page<Answer> getAnswersByQuestionId(Integer questionId, int page) {
+    public Page<Answer> getAnswersByQuestionId(Integer questionId, int page, String sortBy) {
         int pageSize = 10; // 기본 페이지 크기 설정
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable;
+
+        if ("recommend".equals(sortBy)) {
+            pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Order.desc("voter"))); // 추천순
+        } else {
+            pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Order.desc("createDate"))); // 최신순
+        }
+
         return answerRepository.findByQuestionId(questionId, pageable);
     }
 
@@ -63,6 +71,7 @@ public class AnswerService {
         this.answerRepository.delete(answer);
     }
 
+    @Transactional
     public void vote(Answer answer, SiteUser siteUser) {
         answer.getVoter().add(siteUser);
         this.answerRepository.save(answer);

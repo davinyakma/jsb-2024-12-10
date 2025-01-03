@@ -3,6 +3,9 @@ package com.mysite.sbb.question;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
+import com.mysite.sbb.comment.Comment;
+import com.mysite.sbb.comment.CommentForm;
+import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 import jakarta.validation.Valid;
@@ -25,27 +28,38 @@ public class QuestionController {
 
     private final QuestionService questionService;
     private final AnswerService answerService;
+    private final CommentService commentService;
     private final UserService userService;
 
     @GetMapping("/list")
-    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-                       @RequestParam(value = "kw", defaultValue = "") String kw) {
-        Page<Question> paging = this.questionService.getList(page, kw);
+    public String list(Model model,
+                       @RequestParam(value = "page", defaultValue = "0") int page,
+                       @RequestParam(value = "kw", defaultValue = "") String kw,
+                       @RequestParam(value = "sortBy", defaultValue = "createDate") String sortBy) {
+
+        Page<Question> paging = this.questionService.getList(page, kw, sortBy);
+
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
+        model.addAttribute("sortBy", sortBy);
+
         return "question_list";
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, @RequestParam(value = "page", defaultValue = "0") int page) {
+    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, CommentForm commentForm,
+                         @RequestParam(value = "page", defaultValue = "0") int page,
+                         @RequestParam(value = "sortBy", defaultValue = "latest") String sortBy) {
         if (page < 0) {
             page = 0; // 음수 페이지 요청에 대한 기본값 설정
         }
         Question question = this.questionService.getQuestion(id);
-        //Page<Answer> answerPaging = this.answerService.getList(page);
-        Page<Answer> answerPaging = answerService.getAnswersByQuestionId(id, page);
+        Page<Answer> answerPaging = answerService.getAnswersByQuestionId(id, page, sortBy);
+        Page<Comment> commentPaging = commentService.getCommentsByQuestionId(id, page, sortBy);
         model.addAttribute("question", question);
         model.addAttribute("answerPaging", answerPaging);
+        model.addAttribute("commentPaging", commentPaging);
+        model.addAttribute("sortBy", sortBy); // sortBy 파라미터 추가
         return "question_detail";
     }
 

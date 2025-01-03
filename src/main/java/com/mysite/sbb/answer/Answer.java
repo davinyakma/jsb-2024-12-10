@@ -1,5 +1,6 @@
 package com.mysite.sbb.answer;
 
+import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.user.SiteUser;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -30,6 +32,14 @@ public class Answer {
     @ManyToOne
     private SiteUser author;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "answer_voter",
+            joinColumns = @JoinColumn(name = "answer_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     Set<SiteUser> voter;
+
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
 }
