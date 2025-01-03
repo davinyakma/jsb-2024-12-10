@@ -40,6 +40,6 @@ public class Answer {
     )
     Set<SiteUser> voter;
 
-    @OneToMany(mappedBy = "answer")
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
     private List<Comment> comments;
 }

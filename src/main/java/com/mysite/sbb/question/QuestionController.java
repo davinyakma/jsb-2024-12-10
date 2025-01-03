@@ -3,6 +3,9 @@ package com.mysite.sbb.question;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
+import com.mysite.sbb.comment.Comment;
+import com.mysite.sbb.comment.CommentForm;
+import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 import jakarta.validation.Valid;
@@ -25,6 +28,7 @@ public class QuestionController {
 
     private final QuestionService questionService;
     private final AnswerService answerService;
+    private final CommentService commentService;
     private final UserService userService;
 
     @GetMapping("/list")
@@ -43,7 +47,7 @@ public class QuestionController {
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm,
+    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, CommentForm commentForm,
                          @RequestParam(value = "page", defaultValue = "0") int page,
                          @RequestParam(value = "sortBy", defaultValue = "latest") String sortBy) {
         if (page < 0) {
@@ -51,8 +55,10 @@ public class QuestionController {
         }
         Question question = this.questionService.getQuestion(id);
         Page<Answer> answerPaging = answerService.getAnswersByQuestionId(id, page, sortBy);
+        Page<Comment> commentPaging = commentService.getCommentsByQuestionId(id, page, sortBy);
         model.addAttribute("question", question);
         model.addAttribute("answerPaging", answerPaging);
+        model.addAttribute("commentPaging", commentPaging);
         model.addAttribute("sortBy", sortBy); // sortBy 파라미터 추가
         return "question_detail";
     }

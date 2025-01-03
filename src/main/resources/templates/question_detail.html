@@ -109,11 +109,85 @@
     <!-- 답변 작성 -->
     <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
         <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="5"></textarea>
-        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="5"></textarea>
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" placeholder="답변을 입력하세요" class="form-control" rows="5"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
-</div>
 
+    <!-- 댓글 목록 -->
+    <div class="my-3">
+        <h5 class="border-bottom my-3 py-2">
+            <span th:text="|${commentPaging.totalElements}개의 댓글이 있습니다.|"></span>
+            <!-- 댓글 정렬 옵션 버튼 -->
+            <div class="btn-group" role="group" aria-label="Sort Comments">
+                <a href="#" class="btn btn-outline-secondary" th:href="@{|/question/detail/${question.id}?page=0&sortBy=latestComment|}"
+                   th:classappend="${sortBy == 'latestComment' ? 'active' : ''}">최신순</a>
+                <a href="#" class="btn btn-outline-secondary" th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommendComment|}"
+                   th:classappend="${sortBy == 'recommendComment' ? 'active' : ''}">추천순</a>
+            </div>
+        </h5>
+
+        <!-- 댓글 반복 시작 -->
+        <div class="card my-3" th:each="comment : ${commentPaging.content}">
+            <div class="card-body">
+                <div class="card-text" th:utext="${@commonUtil.markdown(comment.content)}"></div>
+                <div class="d-flex justify-content-end">
+                    <div th:if="${comment.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                        <div class="mb-2">modified at</div>
+                        <div th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+                    </div>
+                    <div class="badge bg-light text-dark p-2 text-start">
+                        <div class="mb-2">
+                            <span th:if="${comment.author != null}" th:text="${comment.author.username}"></span>
+                        </div>
+                        <div th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
+                       th:data-uri="@{|/comment/vote/${comment.id}|}">
+                        추천
+                        <span class="badge rounded-pill bg-success" th:text="${#lists.size(comment.voter)}"></span>
+                    </a>
+                    <a th:href="@{|/comment/modify/${comment.id}|}" class="btn btn-sm btn-outline-secondary"
+                       sec:authorize="isAuthenticated()"
+                       th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.author.username}"
+                       th:text="수정"></a>
+                    <a href="javascript:void(0);" th:data-uri="@{|/comment/delete/${comment.id}|}"
+                       class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                       th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.author.username}"
+                       th:text="삭제"></a>
+                </div>
+            </div>
+        </div>
+        <!-- 댓글 반복 끝 -->
+
+        <!-- 댓글 페이징 처리 -->
+        <div th:if="${commentPaging.totalPages > 1}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!commentPaging.hasPrevious} ? 'disabled'">
+                    <a class="page-link" th:href="@{|/question/detail/${question.id}?page=${commentPaging.number - 1}&sortBy=${sortBy}|}">
+                        이전
+                    </a>
+                </li>
+                <li th:each="page : ${#numbers.sequence(0, commentPaging.totalPages - 1)}"
+                    th:classappend="${page == commentPaging.number} ? 'active'" class="page-item">
+                    <a class="page-link" th:href="@{|/question/detail/${question.id}?page=${page}&sortBy=${sortBy}|}" th:text="${page + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${!commentPaging.hasNext} ? 'disabled'">
+                    <a class="page-link" th:href="@{|/question/detail/${question.id}?page=${commentPaging.number + 1}&sortBy=${sortBy}|}">
+                        다음
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- 댓글 작성 -->
+    <form th:action="@{/comment/create/question/{id}(id=${question.id})}" method="post" th:object="${commentForm}" class="my-3">
+        <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="5"></textarea>
+        <textarea th:field="*{content}" placeholder="댓글을 입력하세요" class="form-control" rows="3"></textarea>
+        <button type="submit" class="btn btn-primary mt-2">댓글 작성</button>
+    </form>
+</div>
 <script layout:fragment="script" type="text/javascript">
     const delete_elements = document.getElementsByClassName("delete");
     Array.from(delete_elements).forEach(function(element) {

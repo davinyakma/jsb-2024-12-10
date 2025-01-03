@@ -47,6 +47,6 @@ public class Question {
     @ManyToOne
     private Category category;
 
-    @OneToMany(mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
     private List<Comment> comments;
 }
