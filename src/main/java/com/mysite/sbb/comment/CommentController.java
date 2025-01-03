@@ -42,8 +42,9 @@ public class CommentController {
         if (bindingResult.hasErrors()) {
             return "redirect:/question/detail/" + id;
         }
-        this.commentService.create(question, null, commentForm.getContent(), siteUser);
-        return "redirect:/question/detail/" + id;
+        Comment comment = this.commentService.create(question, null, commentForm.getContent(), siteUser);
+        return String.format("redirect:/question/detail/%s#comment_%s",
+                comment.getQuestion().getId(), comment.getId());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -57,8 +58,9 @@ public class CommentController {
         if (bindingResult.hasErrors()) {
             return "redirect:/question/detail/" + answer.getQuestion().getId();
         }
-        this.commentService.create(null, answer, commentForm.getContent(), siteUser);
-        return "redirect:/question/detail/" + answer.getQuestion().getId();
+        Comment comment = this.commentService.create(null, answer, commentForm.getContent(), siteUser);
+        return String.format("redirect:/question/detail/%s#comment_%s",
+                comment.getQuestion().getId(), comment.getId());
     }
 
     @PreAuthorize("isAuthenticated()")

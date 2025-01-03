@@ -40,11 +40,13 @@
         <!-- 답변의 갯수 표시 -->
         <h5 class="border-bottom my-3 py-2">
             <span th:text="|${answerPaging.totalElements}개의 답변이 있습니다.|"></span>
-            <!-- 정렬 옵션 버튼 -->
-            <div class="btn-group" role="group" aria-label="Sort Answers">
-                <a href="#" class="btn btn-outline-secondary" th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest|}"
+            <!-- 답변 정렬 버튼 -->
+            <div class="btn-group" role="group" aria-label="Sort Answers" id="answers-sort-buttons">
+                <a href="#" class="btn btn-outline-secondary"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest|}"
                    th:classappend="${sortBy == 'latest' ? 'active' : ''}">최신순</a>
-                <a href="#" class="btn btn-outline-secondary" th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend|}"
+                <a href="#" class="btn btn-outline-secondary"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend|}"
                    th:classappend="${sortBy == 'recommend' ? 'active' : ''}">추천순</a>
             </div>
         </h5>
@@ -117,17 +119,20 @@
     <div class="my-3">
         <h5 class="border-bottom my-3 py-2">
             <span th:text="|${commentPaging.totalElements}개의 댓글이 있습니다.|"></span>
-            <!-- 댓글 정렬 옵션 버튼 -->
-            <div class="btn-group" role="group" aria-label="Sort Comments">
-                <a href="#" class="btn btn-outline-secondary" th:href="@{|/question/detail/${question.id}?page=0&sortBy=latestComment|}"
-                   th:classappend="${sortBy == 'latestComment' ? 'active' : ''}">최신순</a>
-                <a href="#" class="btn btn-outline-secondary" th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommendComment|}"
-                   th:classappend="${sortBy == 'recommendComment' ? 'active' : ''}">추천순</a>
+            <!-- 댓글 정렬 버튼 -->
+            <div class="btn-group" role="group" aria-label="Sort Comments" id="comments-sort-buttons">
+                <a href="#" class="btn btn-outline-secondary"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest|}"
+                   th:classappend="${sortBy == 'latest' ? 'active' : ''}">최신순</a>
+                <a href="#" class="btn btn-outline-secondary"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend|}"
+                   th:classappend="${sortBy == 'recommend' ? 'active' : ''}">추천순</a>
             </div>
         </h5>
 
         <!-- 댓글 반복 시작 -->
         <div class="card my-3" th:each="comment : ${commentPaging.content}">
+            <a th:id="|comment_${comment.id}|"></a>
             <div class="card-body">
                 <div class="card-text" th:utext="${@commonUtil.markdown(comment.content)}"></div>
                 <div class="d-flex justify-content-end">
