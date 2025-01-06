@@ -36,17 +36,17 @@
     </div>
 
     <!-- 답변 리스트 -->
-    <div class="container my-3">
+    <div class="container my-3" id="answers-section">
         <!-- 답변의 갯수 표시 -->
         <h5 class="border-bottom my-3 py-2">
             <span th:text="|${answerPaging.totalElements}개의 답변이 있습니다.|"></span>
             <!-- 답변 정렬 버튼 -->
             <div class="btn-group" role="group" aria-label="Sort Answers" id="answers-sort-buttons">
                 <a href="#" class="btn btn-outline-secondary"
-                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest|}"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest#answers-section|}"
                    th:classappend="${sortBy == 'latest' ? 'active' : ''}">최신순</a>
                 <a href="#" class="btn btn-outline-secondary"
-                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend|}"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend#answers-section|}"
                    th:classappend="${sortBy == 'recommend' ? 'active' : ''}">추천순</a>
             </div>
         </h5>
@@ -116,16 +116,16 @@
     </form>
 
     <!-- 댓글 목록 -->
-    <div class="my-3">
+    <div class="my-3" id="comments-section">
         <h5 class="border-bottom my-3 py-2">
             <span th:text="|${commentPaging.totalElements}개의 댓글이 있습니다.|"></span>
             <!-- 댓글 정렬 버튼 -->
             <div class="btn-group" role="group" aria-label="Sort Comments" id="comments-sort-buttons">
                 <a href="#" class="btn btn-outline-secondary"
-                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest|}"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=latest#comments-section|}"
                    th:classappend="${sortBy == 'latest' ? 'active' : ''}">최신순</a>
                 <a href="#" class="btn btn-outline-secondary"
-                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend|}"
+                   th:href="@{|/question/detail/${question.id}?page=0&sortBy=recommend#comments-section|}"
                    th:classappend="${sortBy == 'recommend' ? 'active' : ''}">추천순</a>
             </div>
         </h5>
@@ -189,7 +189,7 @@
     <!-- 댓글 작성 -->
     <form th:action="@{/comment/create/question/{id}(id=${question.id})}" method="post" th:object="${commentForm}" class="my-3">
         <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="5"></textarea>
-        <textarea th:field="*{content}" placeholder="댓글을 입력하세요" class="form-control" rows="3"></textarea>
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" placeholder="댓글을 입력하세요" class="form-control" rows="3"></textarea>
         <button type="submit" class="btn btn-primary mt-2">댓글 작성</button>
     </form>
 </div>
