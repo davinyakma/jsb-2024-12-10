@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>카테고리 질문 목록</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-3">
+  <h1 th:text="${category.name} + '의 질문 목록'"></h1>
+  <div>
+    <a href="/create?categoryId={category.id}" class="btn btn-primary">질문 추가</a>
+  </div>
+  <ul>
+    <th:block th:each="question : ${questions}">
+      <li>
+        <a th:href="@{/question/{id}(id=${question.id})}" th:text="${question.title}"></a>
+        <span th:text="| (작성자: ${question.author})"></span>
+      </li>
+    </th:block>
+  </ul>
+  <div>
+    <a href="/category/list">뒤로가기</a>
+  </div>
+</div>
+</body>
+</html>

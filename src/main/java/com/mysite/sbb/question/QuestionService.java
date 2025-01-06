@@ -2,6 +2,7 @@ package com.mysite.sbb.question;
 
 import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.category.Category;
 import com.mysite.sbb.user.SiteUser;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -85,5 +87,9 @@ public class QuestionService {
     public void vote(Question question, SiteUser siteUser) {
         question.getVoter().add(siteUser);
         this.questionRepository.save(question);
+    }
+
+    public List<Question> getQuestionsByCategory(Category category) {
+        return questionRepository.findByCategory(category);
     }
 }

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>카테고리 목록</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div layout:fragment="content" class="container my-3">
+    <h1>카테고리 목록</h1>
+    <div>
+        <a href="/category/create" class="btn btn-primary">카테고리 추가</a>
+    </div>
+    <ul>
+        <th:block th:each="category : ${categories}">
+            <li>
+                <a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name}"></a>
+                <span th:text="| (총 ${category.questions.size()}개 질문) |"></span>
+            </li>
+        </th:block>
+    </ul>
+</div>
+</body>
+</html>
