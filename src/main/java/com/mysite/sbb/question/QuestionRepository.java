@@ -1,6 +1,7 @@
 package com.mysite.sbb.question;
 
 
+import com.mysite.sbb.category.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,4 +39,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
             "   or q.content like %:kw% " +
             "order by size(q.voter) desc, q.createDate desc")
     Page<Question> findAllByKeywordOrderByVoter(@Param("kw") String kw, Pageable pageable);
+
+    // 카테고리별 질문 목록 조회
+    List<Question> findByCategory(Category category);
 }
