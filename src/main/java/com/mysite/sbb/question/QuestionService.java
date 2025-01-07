@@ -9,12 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -63,12 +63,13 @@ public class QuestionService {
         }
     }
 
-    public void create(String subject, String content, SiteUser user) {
+    public void create(String subject, String content, SiteUser user, Category category) {
         Question q = new Question();
         q.setSubject(subject);
         q.setContent(content);
         q.setCreateDate(LocalDateTime.now());
         q.setAuthor(user);
+        q.setCategory(category);
         this.questionRepository.save(q);
     }
 
@@ -89,7 +90,17 @@ public class QuestionService {
         this.questionRepository.save(question);
     }
 
-    public List<Question> getQuestionsByCategory(Category category) {
-        return questionRepository.findByCategory(category);
+    // 카테고리별 질문 목록 조회
+    public Page<Question> getQuestionsByCategory(Category category, Pageable pageable) {
+        return this.questionRepository.findByCategory(category, pageable);
+    }
+
+    // 키워드와 카테고리로 검색
+    public Page<Question> getQuestionsByKeywordAndCategory(String keyword, Category category, int page) {
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
+        }
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createDate"));
+        return this.questionRepository.findByKeywordAndCategory(keyword, category, pageable);
     }
 }

@@ -3,6 +3,8 @@ package com.mysite.sbb.question;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
+import com.mysite.sbb.category.Category;
+import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.comment.CommentForm;
 import com.mysite.sbb.comment.CommentService;
@@ -30,14 +32,24 @@ public class QuestionController {
     private final AnswerService answerService;
     private final CommentService commentService;
     private final UserService userService;
+    private final CategoryService categoryService;
 
     @GetMapping("/list")
     public String list(Model model,
                        @RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String kw,
-                       @RequestParam(value = "sortBy", defaultValue = "createDate") String sortBy) {
+                       @RequestParam(value = "sortBy", defaultValue = "createDate") String sortBy,
+                       @RequestParam(value = "categoryName", required = false) String categoryName) {
 
-        Page<Question> paging = this.questionService.getList(page, kw, sortBy);
+        Page<Question> paging;
+
+        if (categoryName != null && !categoryName.isEmpty()) {
+            Category category = categoryService.getCategoryByName(categoryName);
+            paging = this.questionService.getQuestionsByKeywordAndCategory(kw, category, page);
+            model.addAttribute("categoryName", categoryName);
+        } else {
+            paging = this.questionService.getList(page, kw, sortBy);
+        }
 
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
@@ -65,18 +77,23 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String questionCreate(QuestionForm questionForm) {
+    public String questionCreate(@RequestParam(required = false) Integer categoryId, Model model) {
+        if (categoryId != null) {
+            Category category = categoryService.getCategoryById(categoryId);
+            model.addAttribute("category", category);
+        }
         return "question_form";
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
+    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal, @RequestParam Integer categoryId) {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
         SiteUser siteUser = this.userService.getUser(principal.getName());
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
+        Category category = categoryService.getCategoryById(categoryId);
+        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser, category);
         return "redirect:/question/list";
     }
 

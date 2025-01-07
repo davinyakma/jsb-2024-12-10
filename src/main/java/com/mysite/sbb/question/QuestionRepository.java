@@ -41,5 +41,9 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Page<Question> findAllByKeywordOrderByVoter(@Param("kw") String kw, Pageable pageable);
 
     // 카테고리별 질문 목록 조회
-    List<Question> findByCategory(Category category);
+    Page<Question> findByCategory(Category category, Pageable pageable);
+
+    // 키워드와 카테고리로 검색
+    @Query("SELECT q FROM Question q WHERE (:kw IS NULL OR q.subject LIKE %:kw%) AND (:category IS NULL OR q.category = :category)")
+    Page<Question> findByKeywordAndCategory(@Param("kw") String keyword, @Param("category") Category category, Pageable pageable);
 }

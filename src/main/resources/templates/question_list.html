@@ -96,5 +96,24 @@
         document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
         document.getElementById('searchForm').submit();
     });
+    const btnAddQuestion = document.getElementById("btnAddQuestion");
+    btnAddQuestion.addEventListener("click", function () {
+        const categoryId = document.getElementById("categorySelect").value;
+
+        if (!categoryId) {
+            alert("카테고리를 선택해주세요.");
+            return;
+        }
+
+        // 카테고리 ID를 포함하여 질문 등록 페이지로 이동
+        const url = `/question/create?categoryId=${categoryId}`;
+        window.location.href = url;
+    });
+    const filterCategory = document.getElementById("filterCategory");
+    filterCategory.addEventListener("change", function () {
+        const categoryName = this.value;
+        const url = categoryName ? `/question/list?categoryName=${categoryName}` : `/question/list`;
+        window.location.href = url;
+    });
 </script>
 </html>
