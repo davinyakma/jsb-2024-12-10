@@ -8,9 +8,13 @@
 <body>
 <div layout:fragment="content" class="container my-3">
     <h1>카테고리 목록</h1>
+
+    <!-- 카테고리 추가 버튼 -->
     <div>
         <a href="/category/create" class="btn btn-primary">카테고리 추가</a>
     </div>
+
+    <!-- 카테고리 목록 -->
     <ul>
         <th:block th:each="category : ${categories}">
             <li>
@@ -19,6 +23,11 @@
             </li>
         </th:block>
     </ul>
+
+    <!-- 홈으로 돌아가기 버튼 (question_list로 이동) -->
+    <div>
+        <a href="/question/list" class="btn btn-secondary">홈으로 돌아가기</a>
+    </div>
 </div>
 </body>
 </html>

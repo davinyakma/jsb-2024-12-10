@@ -45,7 +45,7 @@ public class Question {
     private Set<SiteUser> voter;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)

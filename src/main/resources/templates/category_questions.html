@@ -6,20 +6,41 @@
 </head>
 <body>
 <div layout:fragment="content" class="container my-3">
-  <h1 th:text="${category.name} + '의 질문 목록'"></h1>
+  <h1>카테고리: <span th:text="${category.name} + '의 질문 목록'"></span></h1>
   <div>
-    <a href="/create?categoryId={category.id}" class="btn btn-primary">질문 추가</a>
+    <a th:href="@{/create(categoryId=${category.id})}" class="btn btn-primary">질문 추가</a>
   </div>
   <ul>
-    <th:block th:each="question : ${questions}">
+    <th:block th:each="question : ${questions.content}">
       <li>
-        <a th:href="@{/question/{id}(id=${question.id})}" th:text="${question.title}"></a>
-        <span th:text="| (작성자: ${question.author})"></span>
+        <a th:href="@{/question/{id}(id=${question.id})}" th:text="${question.subject}"></a>
+        <span th:text="| (작성자: ${question.author.username})"></span>
       </li>
     </th:block>
   </ul>
+
+  <!-- 페이지네이션 -->
+  <div class="pagination">
+    <!-- 이전 버튼: 페이지가 0보다 큰 경우에만 활성화 -->
+    <a th:if="${questions.hasPrevious()}"
+       th:href="@{/category/{id}(id=${category.id}, page=${questions.number - 1})}"
+       class="btn btn-secondary">이전</a>
+
+    <span th:each="page : ${#numbers.sequence(1, questions.totalPages)}"
+          th:classappend="${page == questions.number + 1} ? 'active'">
+      <a th:href="@{/category/{id}(id=${category.id}, page=${page - 1})}"
+         th:text="${page}"
+         class="btn btn-light"></a>
+    </span>
+
+    <!-- 다음 버튼: 페이지가 마지막 페이지가 아닌 경우에만 활성화 -->
+    <a th:if="${questions.hasNext()}"
+       th:href="@{/category/{id}(id=${category.id}, page=${questions.number + 1})}"
+       class="btn btn-secondary">다음</a>
+  </div>
+
   <div>
-    <a href="/category/list">뒤로가기</a>
+    <a href="/category/list" class="btn btn-outline-secondary">뒤로가기</a>
   </div>
 </div>
 </body>

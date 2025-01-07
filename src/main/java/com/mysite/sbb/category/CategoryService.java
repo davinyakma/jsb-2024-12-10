@@ -21,6 +21,12 @@ public class CategoryService {
         return categoryRepository.findById(id).orElse(null);
     }
 
+    public Category getCategoryByName(String name) {
+        return categoryRepository.findByName(name).orElseThrow(() ->
+                new IllegalArgumentException("Category with name " + name + " not found")
+        );
+    }
+
     // 카테고리 생성
     public void createCategory(String name) {
         Category category = new Category();
