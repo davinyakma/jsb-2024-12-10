@@ -53,6 +53,11 @@ public class CategoryController {
     public String categoryQuestions(@PathVariable("id") Integer id,
                                     @RequestParam(value = "page", defaultValue = "0") int page,
                                     Model model) {
+        // 페이지 번호가 음수일 경우 기본값 0으로 설정
+        if (page < 0) {
+            page = 0;
+        }
+
         // 카테고리 조회
         Category category = categoryService.getCategoryById(id);
         if (category != null) {

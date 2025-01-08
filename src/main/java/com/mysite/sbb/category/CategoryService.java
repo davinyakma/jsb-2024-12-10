@@ -33,4 +33,13 @@ public class CategoryService {
         category.setName(name);
         categoryRepository.save(category);
     }
+
+    public Category getDefaultCategory() {
+        return categoryRepository.findByName("미분류")
+                .orElseThrow(() -> new RuntimeException("Default category '미분류' not found"));
+    }
+
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
 }

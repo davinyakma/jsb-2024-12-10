@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequestMapping("/question")
 @RequiredArgsConstructor
@@ -78,6 +79,10 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
     public String questionCreate(@RequestParam(required = false) Integer categoryId, Model model) {
+        List<Category> categories = categoryService.getAllCategories(); // 모든 카테고리 가져오기
+        model.addAttribute("categories", categories); // 카테고리 리스트 추가
+        model.addAttribute("questionForm", new QuestionForm());
+
         if (categoryId != null) {
             Category category = categoryService.getCategoryById(categoryId);
             model.addAttribute("category", category);
@@ -87,25 +92,47 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal, @RequestParam Integer categoryId) {
+    public String questionCreate(
+            @Valid QuestionForm questionForm,
+            BindingResult bindingResult,
+            Principal principal,
+            @RequestParam(required = false) Integer categoryId) {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
+
         SiteUser siteUser = this.userService.getUser(principal.getName());
-        Category category = categoryService.getCategoryById(categoryId);
+        Category category;
+
+        // 사용자가 카테고리를 선택하지 않은 경우 "미분류" 카테고리 설정
+        if (categoryId == null || categoryId == 0) {
+            category = categoryService.getDefaultCategory(); // "미분류" 카테고리 가져오기
+        } else {
+            category = categoryService.getCategoryById(categoryId);
+        }
+
         this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser, category);
         return "redirect:/question/list";
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
-    public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal) {
+    public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal, Model model) {
         Question question = this.questionService.getQuestion(id);
-        if(!question.getAuthor().getUsername().equals(principal.getName())) {
+
+        // 수정 권한 체크
+        if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
+
+        // 기존 질문 정보 설정
         questionForm.setSubject(question.getSubject());
         questionForm.setContent(question.getContent());
+        questionForm.setCategoryId(Long.valueOf(question.getCategory().getId()));  // 기존 카테고리 ID 설정
+
+        // 카테고리 목록을 모델에 추가
+        model.addAttribute("categories", this.categoryService.getAllCategories());
+
         return "question_form";
     }
 
@@ -116,11 +143,21 @@ public class QuestionController {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
+
         Question question = this.questionService.getQuestion(id);
+
+        // 수정 권한 체크
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
-        this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+
+        // 수정된 질문 데이터 적용
+        Category category = this.categoryService.getCategoryById(Math.toIntExact(questionForm.getCategoryId()));
+
+        // questionService.modify 호출 시 카테고리까지 전달
+        this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent(), category);
+
+        // 수정된 질문 저장 후 상세 페이지로 리다이렉트
         return String.format("redirect:/question/detail/%s", id);
     }
 

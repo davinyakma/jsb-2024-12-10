@@ -8,13 +8,24 @@
 <div layout:fragment="content" class="container my-3">
   <h1>카테고리: <span th:text="${category.name} + '의 질문 목록'"></span></h1>
   <div>
-    <a th:href="@{/create(categoryId=${category.id})}" class="btn btn-primary">질문 추가</a>
+    <!-- 로그인 상태에 따라 링크 변경 -->
+    <a th:if="${#authentication.principal != null}"
+       th:href="@{/question/create(categoryId=${category.id})}" class="btn btn-primary">질문 등록하기</a>
+    <a th:if="${#authentication.principal == null}"
+       th:href="@{/login}" class="btn btn-primary">질문 등록하기 (로그인 필요)</a>
   </div>
   <ul>
     <th:block th:each="question : ${questions.content}">
       <li>
-        <a th:href="@{/question/{id}(id=${question.id})}" th:text="${question.subject}"></a>
-        <span th:text="| (작성자: ${question.author.username})"></span>
+        <a th:href="@{/question/detail/{id}(id=${question.id})}" th:text="${question.subject}"></a>
+        <p>
+          <span th:if="${question.author != null}">
+            (작성자: <span th:text="${question.author.username}"></span>)
+          </span>
+          <span th:if="${question.author == null}">
+            (작성자: 알 수 없음)
+          </span>
+        </p>
       </li>
     </th:block>
   </ul>
@@ -23,7 +34,7 @@
   <div class="pagination">
     <!-- 이전 버튼: 페이지가 0보다 큰 경우에만 활성화 -->
     <a th:if="${questions.hasPrevious()}"
-       th:href="@{/category/{id}(id=${category.id}, page=${questions.number - 1})}"
+       th:href="@{/category/{id}(id=${category.id}, page=${questions.number - 1 >= 0 ? questions.number - 1 : 0})}"
        class="btn btn-secondary">이전</a>
 
     <span th:each="page : ${#numbers.sequence(1, questions.totalPages)}"

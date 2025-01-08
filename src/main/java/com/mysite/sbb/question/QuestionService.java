@@ -73,9 +73,10 @@ public class QuestionService {
         this.questionRepository.save(q);
     }
 
-    public void modify(Question question, String subject, String content) {
+    public void modify(Question question, String subject, String content, Category category) {
         question.setSubject(subject);
         question.setContent(content);
+        question.setCategory(category);
         question.setModifyDate(LocalDateTime.now());
         this.questionRepository.save(question);
     }

@@ -1,18 +1,74 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
   <h5 class="my-3 border-bottom pb-2">질문등록</h5>
+
   <form th:object="${questionForm}" method="post">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
+    <!-- 오류 메시지 섹션 -->
+    <div th:replace="~{form_errors :: formErrorsFragment}" class="alert alert-danger mb-4"></div>
+
+    <!-- 카테고리 선택 (드롭다운 대신 텍스트 필드와 버튼으로) -->
+    <div class="mb-3">
+      <label for="categoryId" class="form-label">카테고리</label>
+      <input type="text" th:field="*{categoryName}" class="form-control" placeholder="카테고리 입력">
+      <button type="button" class="btn btn-info mt-2" data-bs-toggle="modal" data-bs-target="#categoryModal">
+        카테고리 추가
+      </button>
+    </div>
+
+    <!-- 제목 입력 -->
     <div class="mb-3">
       <label for="subject" class="form-label">제목</label>
       <input type="text" th:field="*{subject}" class="form-control">
     </div>
+
+    <!-- 내용 입력 -->
     <div class="mb-3">
       <label for="content" class="form-label">내용</label>
       <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
     </div>
+
+    <!-- 저장 버튼 -->
     <input type="submit" value="저장하기" class="btn btn-primary my-2">
   </form>
+
+  <!-- 카테고리 추가 모달 -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="categoryModalLabel">새 카테고리 추가</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="categoryForm">
+            <div class="mb-3">
+              <label for="newCategoryName" class="form-label">카테고리 이름</label>
+              <input type="text" id="newCategoryName" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">카테고리 추가</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  // 카테고리 추가 버튼 클릭 시, 카테고리를 추가하고 해당 카테고리로 선택
+  document.getElementById("categoryForm").onsubmit = function (event) {
+    event.preventDefault();
+    var newCategoryName = document.getElementById("newCategoryName").value;
+
+    if (newCategoryName) {
+      // 새로운 카테고리를 선택 필드에 추가 (모델 업데이트)
+      document.querySelector('input[th\\:field="*{categoryName}"]').value = newCategoryName;
+
+      // 모달 닫기
+      var modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
+      modal.hide();
+    }
+  };
+</script>
 </html>

@@ -2,6 +2,12 @@
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
+
+    <!-- 카테고리 표시 -->
+    <div th:if="${question.category != null}" class="badge bg-info text-dark mb-3">
+        <span th:text="${question.category.name}"></span>
+    </div>
+
     <div class="card my-3">
         <div class="card-body">
             <div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>
