@@ -100,10 +100,10 @@ public class UserController {
         }
 
         try {
-            // 서비스 계층에서 비밀번호 변경 로직 호출, 이메일도 함께 전달
+            // 서비스 계층에서 비밀번호 변경 로직 호출
             userService.changePassword(currentPassword, newPassword, currentUser.getEmail());
             model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
-            return "redirect:/user/login"; // 비밀번호 변경 후 로그인 페이지로 리다이렉트
+            return "change_password_form"; // 리다이렉트 대신 메시지를 바로 표시
         } catch (Exception e) {
             // 비밀번호 변경 실패 시 오류 메시지 처리
             model.addAttribute("error", "비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요.");

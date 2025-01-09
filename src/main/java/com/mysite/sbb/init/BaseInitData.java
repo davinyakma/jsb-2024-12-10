@@ -65,6 +65,38 @@ public class BaseInitData implements CommandLineRunner {
             });
         }
 
+        // guest06 생성
+        userRepository.findByusername("guest06").orElseGet(() -> {
+            SiteUser user = new SiteUser();
+            user.setUsername("guest06");
+            user.setPassword(passwordEncoder.encode("guest06!"));
+            user.setEmail("yakmatwin3652@gmail.com");
+            return userRepository.save(user);
+        });
+
+        // guest07 생성
+        userRepository.findByusername("guest07").orElseGet(() -> {
+            SiteUser user = new SiteUser();
+            user.setUsername("guest07");
+            user.setPassword(passwordEncoder.encode("guest07!"));
+            user.setEmail("poohcdv3652@naver.com");
+            return userRepository.save(user);
+        });
+
+        // 샘플 질문이 없는 경우 추가
+        if (questionRepository.count() == 0) {
+            for (int i = 1; i <= 12; i++) {
+                Question question = new Question();
+                question.setSubject("샘플 질문 " + i);
+                question.setContent("샘플 내용 " + i);
+                question.setCreateDate(LocalDateTime.now());
+                question.setModifyDate(LocalDateTime.now());
+                question.setAuthor(defaultUser);
+                question.setCategory(defaultCategory);
+                questionRepository.save(question);
+            }
+        }
+
         // 샘플 질문이 없는 경우 추가
         if (questionRepository.count() == 0) {
             for (int i = 1; i <= 12; i++) {
