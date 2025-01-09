@@ -38,6 +38,11 @@
             <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
             <td class="text-start">
                 <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+                <!-- 조회수 표시 (0일 경우 표시 안 함) -->
+                <span class="text-success small ms-2"
+                      th:if="${question.viewCount > 0}"
+                      th:text="${question.viewCount}"></span>
+                <!-- 답변 수 표시 (0일 경우 표시 안 함) -->
                 <span class="text-danger small ms-2"
                       th:if="${#lists.size(question.answerList) > 0}"
                       th:text="${#lists.size(question.answerList)}"></span>

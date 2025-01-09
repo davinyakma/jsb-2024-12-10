@@ -50,4 +50,8 @@ public class Question {
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
     private List<Comment> comments;
+
+    // 조회수를 저장할 필드 추가
+    @Column(nullable = false)
+    private int viewCount = 0; // 기본값은 0
 }

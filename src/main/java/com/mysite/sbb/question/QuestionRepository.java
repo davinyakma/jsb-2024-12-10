@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -50,4 +51,9 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 
     // 사용자별 질문을 가져오는 메소드
     List<Question> findByAuthor(SiteUser author);
+
+    // 특정 질문을 조회할 때 조회수를 증가시키는 메소드
+    @Modifying
+    @Query("UPDATE Question q SET q.viewCount = q.viewCount + 1 WHERE q.id = :id")
+    void incrementViewCount(@Param("id") Integer id);
 }

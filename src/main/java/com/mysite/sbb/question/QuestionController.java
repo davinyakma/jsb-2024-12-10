@@ -72,6 +72,10 @@ public class QuestionController {
             page = 0; // 음수 페이지 요청에 대한 기본값 설정
         }
         Question question = this.questionService.getQuestion(id);
+
+        // 조회수 증가 (서비스 메소드에서 처리)
+        this.questionService.incrementViewCount(id);
+
         Page<Answer> answerPaging = answerService.getAnswersByQuestionId(id, page, sortBy);
         Page<Comment> commentPaging = commentService.getCommentsByQuestionId(id, page, sortBy);
         model.addAttribute("question", question);

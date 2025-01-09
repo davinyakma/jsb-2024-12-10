@@ -109,4 +109,11 @@ public class QuestionService {
     public List<Question> getQuestionsByUser(SiteUser user) {
         return questionRepository.findByAuthor(user);  // 'author'를 기준으로 변경
     }
+
+    // 조회수 증가 메소드
+    @Transactional
+    public void incrementViewCount(Integer id) {
+        // 조회수 증가
+        questionRepository.incrementViewCount(id);
+    }
 }
