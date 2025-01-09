@@ -81,4 +81,10 @@ public class AnswerService {
     public List<Answer> getAnswersByAuthor(SiteUser user) {
         return answerRepository.findByAuthor(user);
     }
+
+    // 최근 5개 답변 가져오기
+    public List<Answer> getRecentAnswers() {
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createDate")));
+        return answerRepository.findRecentAnswers(pageable);
+    }
 }

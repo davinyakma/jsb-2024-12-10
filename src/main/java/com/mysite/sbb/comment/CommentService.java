@@ -76,4 +76,10 @@ public class CommentService {
     public List<Comment> getCommentsByAuthor(SiteUser user) {
         return commentRepository.findByAuthor(user);
     }
+
+    // 최근 5개 댓글 가져오기
+    public List<Comment> getRecentComments() {
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createDate")));
+        return commentRepository.findRecentComments(pageable);
+    }
 }

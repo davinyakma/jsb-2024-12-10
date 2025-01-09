@@ -43,6 +43,9 @@ public class QuestionController {
                        @RequestParam(value = "categoryName", required = false) String categoryName) {
 
         Page<Question> paging;
+        // 최근 답변과 댓글 가져오기
+        List<Answer> recentAnswers = answerService.getRecentAnswers();
+        List<Comment> recentComments = commentService.getRecentComments();
 
         if (categoryName != null && !categoryName.isEmpty()) {
             Category category = categoryService.getCategoryByName(categoryName);
@@ -55,6 +58,8 @@ public class QuestionController {
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
         model.addAttribute("sortBy", sortBy);
+        model.addAttribute("recentAnswers", recentAnswers);
+        model.addAttribute("recentComments", recentComments);
 
         return "question_list";
     }

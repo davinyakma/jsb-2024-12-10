@@ -23,13 +23,7 @@
         </div>
     </div>
 
-    <!-- 카테고리 추가 버튼 추가 -->
-    <div class="row my-3">
-        <div class="col-12">
-            <a th:href="@{/category/create}" class="btn btn-outline-primary">카테고리 추가</a>
-        </div>
-    </div>
-
+    <!-- 질문 목록 -->
     <table class="table">
         <thead class="table-dark">
         <tr class="text-center">
@@ -46,8 +40,7 @@
                 <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
                 <span class="text-danger small ms-2"
                       th:if="${#lists.size(question.answerList) > 0}"
-                      th:text="${#lists.size(question.answerList)}">
-                        </span>
+                      th:text="${#lists.size(question.answerList)}"></span>
             </td>
             <td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
             <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
@@ -55,7 +48,59 @@
         </tbody>
     </table>
 
-    <!-- 페이징처리 시작 -->
+    <!-- 최근 작성된 답변 목록 (최대 5개) -->
+    <div class="my-4">
+        <h5>최근 답변</h5>
+        <table class="table">
+            <thead class="table-dark">
+            <tr class="text-center">
+                <th>번호</th>
+                <th style="width:50%">내용</th>
+                <th>작성자</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="text-center" th:each="answer, stat : ${recentAnswers}">
+                <!-- loop.index를 stat.index로 수정 -->
+                <td th:text="${stat.index + 1}"></td>
+                <td class="text-start">
+                    <a th:href="@{|/answer/detail/${answer.id}|}" th:text="${answer.content}"></a>
+                </td>
+                <td><span th:if="${answer.author != null}" th:text="${answer.author.username}"></span></td>
+                <td th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 최근 작성된 댓글 목록 (최대 5개) -->
+    <div class="my-4">
+        <h5>최근 댓글</h5>
+        <table class="table">
+            <thead class="table-dark">
+            <tr class="text-center">
+                <th>번호</th>
+                <th style="width:50%">내용</th>
+                <th>작성자</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="text-center" th:each="comment, stat : ${recentComments}">
+                <!-- loop.index를 stat.index로 수정 -->
+                <td th:text="${stat.index + 1}"></td>
+                <td class="text-start">
+                    <a th:href="@{|/comment/detail/${comment.id}|}" th:text="${comment.content}"></a>
+                </td>
+                <td><span th:if="${comment.author != null}" th:text="${comment.author.username}"></span></td>
+                <td th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징처리 -->
     <div th:if="${!paging.isEmpty()}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
@@ -75,13 +120,14 @@
             </li>
         </ul>
     </div>
-    <!-- 페이징처리 끝 -->
 
+    <!-- 검색 폼 -->
     <form th:action="@{/question/list}" method="get" id="searchForm">
         <input type="hidden" id="kw" name="kw" th:value="${kw}">
         <input type="hidden" id="page" name="page" th:value="${paging.number}">
     </form>
 </div>
+
 <script layout:fragment="script" type='text/javascript'>
     const page_elements = document.getElementsByClassName("page-link");
     Array.from(page_elements).forEach(function(element) {
@@ -95,25 +141,6 @@
         document.getElementById('kw').value = document.getElementById('search_kw').value;
         document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
         document.getElementById('searchForm').submit();
-    });
-    const btnAddQuestion = document.getElementById("btnAddQuestion");
-    btnAddQuestion.addEventListener("click", function () {
-        const categoryId = document.getElementById("categorySelect").value;
-
-        if (!categoryId) {
-            alert("카테고리를 선택해주세요.");
-            return;
-        }
-
-        // 카테고리 ID를 포함하여 질문 등록 페이지로 이동
-        const url = `/question/create?categoryId=${categoryId}`;
-        window.location.href = url;
-    });
-    const filterCategory = document.getElementById("filterCategory");
-    filterCategory.addEventListener("change", function () {
-        const categoryName = this.value;
-        const url = categoryName ? `/question/list?categoryName=${categoryName}` : `/question/list`;
-        window.location.href = url;
     });
 </script>
 </html>
