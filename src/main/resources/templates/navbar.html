@@ -7,12 +7,18 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- 로그인 상태에 따라 로그인/로그아웃 버튼 표시 -->
         <li class="nav-item">
           <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인</a>
           <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
         </li>
+        <!-- 회원가입 버튼 -->
         <li class="nav-item">
           <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+        </li>
+        <!-- 로그인된 사용자에게만 마이페이지 버튼 표시 -->
+        <li class="nav-item">
+          <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/profile}">마이페이지</a>
         </li>
       </ul>
     </div>

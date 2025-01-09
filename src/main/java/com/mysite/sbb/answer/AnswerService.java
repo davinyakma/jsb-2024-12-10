@@ -76,4 +76,9 @@ public class AnswerService {
         answer.getVoter().add(siteUser);
         this.answerRepository.save(answer);
     }
+
+    // 사용자가 작성한 답변 목록을 가져오는 메소드
+    public List<Answer> getAnswersByAuthor(SiteUser user) {
+        return answerRepository.findByAuthor(user);
+    }
 }

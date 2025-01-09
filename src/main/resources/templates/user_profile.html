@@ -1,0 +1,39 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+  <h2>내 프로필</h2>
+  <div>
+    <h4>기본 정보</h4>
+    <p>이름: <span th:text="${user.username}"></span></p>
+    <p>이메일: <span th:text="${user.email}"></span></p>
+  </div>
+
+  <div>
+    <h4>내가 작성한 질문</h4>
+    <ul>
+      <li th:each="question : ${userQuestions}">
+        <a th:href="@{/question/detail/{id}(id=${question.id})}" th:text="${question.subject}"></a>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <h4>내가 작성한 답변</h4>
+    <ul>
+      <li th:each="answer, iterStat : ${userAnswers}">
+        <!-- 답변 링크, 앵커를 answer-section으로 설정 -->
+        <a th:href="@{|/question/detail/${answer.question.id}?page=0&sortBy=latest#answers-section|}" th:text="${answer.content}"></a>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <h4>내가 작성한 댓글</h4>
+    <ul>
+      <li th:each="comment : ${userComments}">
+        <!-- 댓글 링크, 앵커를 comment-section으로 설정 -->
+        <a th:href="@{|/question/detail/${comment.question.id}?page=0&sortBy=latest#comments-section|}" th:text="${comment.content}"></a>
+      </li>
+    </ul>
+  </div>
+</div>
+</html>

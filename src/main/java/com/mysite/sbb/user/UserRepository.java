@@ -21,4 +21,7 @@ public interface UserRepository extends JpaRepository<SiteUser, Long> {
 
     // 이메일로 사용자 조회
     Optional<SiteUser> findByEmail(String email);
+
+    // 사용자의 username으로 User를 조회하는 메소드
+    SiteUser findByUsername(String username);
 }

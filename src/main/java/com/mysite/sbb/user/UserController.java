@@ -1,9 +1,17 @@
 package com.mysite.sbb.user;
 
+import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.answer.AnswerService;
+import com.mysite.sbb.comment.Comment;
+import com.mysite.sbb.comment.CommentService;
+import com.mysite.sbb.question.Question;
+import com.mysite.sbb.question.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,12 +21,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private QuestionService questionService;
+    @Autowired
+    private AnswerService answerService;
+    @Autowired
+    private CommentService commentService;
 
     // 회원가입 폼
     @GetMapping("/signup")
@@ -61,13 +78,13 @@ public class UserController {
     }
 
     // 비밀번호 찾기 폼
-    @GetMapping("/forgot-password")
+    @GetMapping("/forgot_password")
     public String forgotPasswordForm() {
         return "forgot_password_form";
     }
 
     // 비밀번호 찾기 처리
-    @PostMapping("/forgot-password")
+    @PostMapping("/forgot_password")
     public String forgotPassword(@RequestParam("email") String email, Model model) {
         try {
             userService.sendTemporaryPassword(email); // 서비스 계층에서 임시 비밀번호 전송 로직
@@ -80,14 +97,14 @@ public class UserController {
     }
 
     // 비밀번호 변경 폼
-    @GetMapping("/change-password")
+    @GetMapping("/change_password")
     public String changePasswordForm() {
         return "change_password_form";
     }
 
     // 비밀번호 변경 처리
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/change-password")
+    @PostMapping("/change_password")
     public String changePassword(
             @RequestParam("currentPassword") String currentPassword,
             @RequestParam("newPassword") String newPassword,
@@ -107,7 +124,7 @@ public class UserController {
             model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
 
             // 비밀번호 변경 후 success 페이지로 리디렉션
-            return "redirect:/user/change-password-success"; // change_password_success 페이지로 리디렉션
+            return "redirect:/user/change_password_success"; // change_password_success 페이지로 리디렉션
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "change_password_form";
@@ -117,8 +134,28 @@ public class UserController {
         }
     }
 
-    @GetMapping("/change-password-success")
+    @GetMapping("/change_password_success")
     public String changePasswordSuccess() {
         return "change_password_success"; // change_password_success 페이지로 이동
+    }
+
+    @GetMapping("/profile")
+    public String getUserProfile(Model model, Authentication authentication) {
+        // 로그인한 사용자 정보 가져오기
+        String username = authentication.getName();
+        SiteUser user = userService.getUserByUsername(username);
+
+        // 사용자가 작성한 질문, 답변, 댓글 가져오기
+        List<Question> userQuestions = questionService.getQuestionsByUser(user);
+        List<Answer> userAnswers = answerService.getAnswersByAuthor(user);
+        List<Comment> userComments = commentService.getCommentsByAuthor(user);
+
+        // 모델에 데이터 추가
+        model.addAttribute("user", user);
+        model.addAttribute("userQuestions", userQuestions);
+        model.addAttribute("userAnswers", userAnswers);
+        model.addAttribute("userComments", userComments);
+
+        return "user_profile"; // 프로필 화면을 렌더링
     }
 }

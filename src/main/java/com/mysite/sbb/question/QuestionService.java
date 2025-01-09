@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -51,7 +52,6 @@ public class QuestionService {
         }
     }
 
-    @Transactional(readOnly = true)
     public Page<Question> getList(int page, String kw, String sortBy) {
         Pageable pageable = PageRequest.of(page, 10);
 
@@ -103,5 +103,10 @@ public class QuestionService {
         }
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createDate"));
         return this.questionRepository.findByKeywordAndCategory(keyword, category, pageable);
+    }
+
+    // 사용자가 작성한 질문 목록을 가져오는 메소드
+    public List<Question> getQuestionsByUser(SiteUser user) {
+        return questionRepository.findByAuthor(user);  // 'author'를 기준으로 변경
     }
 }

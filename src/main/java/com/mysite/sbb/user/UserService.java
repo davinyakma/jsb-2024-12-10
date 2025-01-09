@@ -101,4 +101,9 @@ public class UserService {
 
         return temporaryPassword.toString();
     }
+
+    // username으로 User를 조회하는 메소드
+    public SiteUser getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }

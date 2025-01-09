@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -69,5 +70,10 @@ public class CommentService {
     public void vote(Comment comment, SiteUser siteUser) {
         comment.getVoter().add(siteUser);
         this.commentRepository.save(comment);
+    }
+
+    // 사용자가 작성한 댓글 목록을 가져오는 메소드
+    public List<Comment> getCommentsByAuthor(SiteUser user) {
+        return commentRepository.findByAuthor(user);
     }
 }
