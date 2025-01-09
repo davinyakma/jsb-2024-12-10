@@ -1,5 +1,6 @@
 server:
   port: 8080
+
 spring:
   application:
     name: rest
@@ -21,6 +22,17 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: yakmatwin3652@gmail.com # Gmail 계정 입력
+    password: ${SPRING_MAIL_PASSWORD} # 생성한 앱 비밀번호 입력
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 logging:
   level:
     org.hibernate.SQL: DEBUG
