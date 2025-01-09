@@ -6,27 +6,43 @@
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
     <!-- 오류 메시지 섹션 -->
-    <div th:replace="~{form_errors :: formErrorsFragment}" class="alert alert-danger mb-4"></div>
+    <div th:if="${#fields.hasErrors('categoryId')}" class="alert alert-danger mb-2">
+      <p th:errors="*{categoryId}"></p>
+    </div>
 
-    <!-- 카테고리 선택 (드롭다운 대신 텍스트 필드와 버튼으로) -->
+    <!-- 카테고리 선택 -->
     <div class="mb-3">
       <label for="categoryId" class="form-label">카테고리</label>
-      <input type="text" th:field="*{categoryName}" class="form-control" placeholder="카테고리 입력">
+      <select id="categoryId" name="categoryId" th:field="*{categoryId}" class="form-select">
+        <option value="" selected>카테고리를 선택하세요</option>
+        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+      </select>
       <button type="button" class="btn btn-info mt-2" data-bs-toggle="modal" data-bs-target="#categoryModal">
         카테고리 추가
       </button>
     </div>
 
+    <!-- CSRF 보호 -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
     <!-- 제목 입력 -->
     <div class="mb-3">
       <label for="subject" class="form-label">제목</label>
       <input type="text" th:field="*{subject}" class="form-control">
+      <!-- 제목 에러 메시지 -->
+      <div th:if="${#fields.hasErrors('subject')}" class="alert alert-danger mt-2">
+        <p th:errors="*{subject}"></p>
+      </div>
     </div>
 
     <!-- 내용 입력 -->
     <div class="mb-3">
       <label for="content" class="form-label">내용</label>
       <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+      <!-- 내용 에러 메시지 -->
+      <div th:if="${#fields.hasErrors('content')}" class="alert alert-danger mt-2">
+        <p th:errors="*{content}"></p>
+      </div>
     </div>
 
     <!-- 저장 버튼 -->
@@ -56,19 +72,56 @@
 </div>
 
 <script>
-  // 카테고리 추가 버튼 클릭 시, 카테고리를 추가하고 해당 카테고리로 선택
   document.getElementById("categoryForm").onsubmit = function (event) {
-    event.preventDefault();
-    var newCategoryName = document.getElementById("newCategoryName").value;
+  event.preventDefault();
 
-    if (newCategoryName) {
-      // 새로운 카테고리를 선택 필드에 추가 (모델 업데이트)
-      document.querySelector('input[th\\:field="*{categoryName}"]').value = newCategoryName;
+  var newCategoryName = document.getElementById("newCategoryName").value;
+  if (!newCategoryName.trim()) {
+    alert("카테고리 이름을 입력해주세요.");
+    return;
+  }
+
+  // 서버로 카테고리 추가 요청
+  fetch("/category/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name: newCategoryName }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+
+      // 드롭다운에 새 카테고리 추가
+      var categorySelect = document.getElementById("categoryId");
+      categorySelect.innerHTML = "";  // 기존 옵션 비우기
+
+      // 새로 받은 카테고리 목록을 드롭다운에 추가
+      data.forEach(function(category) {
+        var newOption = document.createElement("option");
+        newOption.value = category.id;
+        newOption.text = category.name;
+        categorySelect.appendChild(newOption);
+      });
+
+      // 새로 추가된 카테고리 선택
+      categorySelect.value = data[data.length - 1].id;
 
       // 모달 닫기
-      var modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
+      var modal = bootstrap.Modal.getInstance(document.getElementById("categoryModal"));
       modal.hide();
-    }
-  };
+
+      // 입력 필드 초기화
+      document.getElementById("newCategoryName").value = "";
+    })
+    .catch((error) => {
+      console.error("Error adding category:", error);
+      alert("카테고리 추가 중 오류가 발생했습니다.");
+    });
+};
 </script>
 </html>

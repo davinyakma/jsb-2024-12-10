@@ -92,10 +92,10 @@ public class QuestionController {
         model.addAttribute("categories", categories); // 카테고리 리스트 추가
         model.addAttribute("questionForm", new QuestionForm());
 
-        if (categoryId != null) {
-            Category category = categoryService.getCategoryById(categoryId);
-            model.addAttribute("category", category);
-        }
+//        if (categoryId != null) {
+//            Category category = categoryService.getCategoryById(categoryId);
+//            model.addAttribute("category", category);
+//        }
         return "question_form";
     }
 
@@ -105,7 +105,14 @@ public class QuestionController {
             @Valid QuestionForm questionForm,
             BindingResult bindingResult,
             Principal principal,
+            Model model,  // 모델 객체 추가
             @RequestParam(required = false) Integer categoryId) {
+
+        // 모든 카테고리 가져오기
+        List<Category> categories = categoryService.getAllCategories();
+        model.addAttribute("categories", categories); // 카테고리 리스트 추가
+
+        // 유효성 검사 실패 시, `question_form` 템플릿 반환
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
@@ -120,6 +127,7 @@ public class QuestionController {
             category = categoryService.getCategoryById(categoryId);
         }
 
+        // 질문 생성
         this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser, category);
         return "redirect:/question/list";
     }

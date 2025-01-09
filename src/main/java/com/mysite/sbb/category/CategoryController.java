@@ -7,14 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CategoryController {
@@ -74,5 +74,23 @@ public class CategoryController {
             model.addAttribute("error", "카테고리를 찾을 수 없습니다.");
         }
         return "category_questions"; // 질문 목록 HTML 파일 반환
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/category/add")
+    public ResponseEntity<List<Category>> addCategory(@RequestBody Map<String, String> requestBody) {
+        String name = requestBody.get("name");
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(List.of());  // 빈 리스트를 반환
+        }
+
+        // 카테고리 생성
+        Category category = new Category();
+        category.setName(name);
+        categoryService.createCategory(name);
+
+        // 카테고리 추가 후 모든 카테고리 목록 반환
+        List<Category> categories = categoryService.getAllCategories();
+        return ResponseEntity.ok(categories);
     }
 }
