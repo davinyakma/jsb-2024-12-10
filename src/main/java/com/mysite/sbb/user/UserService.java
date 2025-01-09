@@ -4,6 +4,9 @@ import com.mysite.sbb.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,15 +72,7 @@ public class UserService {
 
     // 비밀번호 변경
     @Transactional
-    public void changePassword(String currentPassword, String newPassword, String email) {
-        // 이메일로 사용자 조회
-        Optional<SiteUser> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
-        }
-
-        SiteUser user = userOptional.get();
-
+    public void changePassword(SiteUser user, String currentPassword, String newPassword) {
         // 현재 비밀번호 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
@@ -86,6 +81,12 @@ public class UserService {
         // 새 비밀번호 암호화 및 저장
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+
+        // 인증 정보 갱신
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                user, null, authentication.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
     // 임시 비밀번호 생성 메서드

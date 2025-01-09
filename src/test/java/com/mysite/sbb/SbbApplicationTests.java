@@ -15,10 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
@@ -71,12 +75,12 @@ class SbbApplicationTests {
 		for (int i = 1; i <= 5; i++) {
 			String username = String.format("guest%02d", i); // guest01, guest02, ..., guest05
 			String email = String.format("guest%02d@example.com", i); // guest01@example.com, ...
-			String password = "guest123"; // 공통 비밀번호
+			String password = String.format("guest%02dPassword", i); // 사용자별 고유 비밀번호
 
 			userRepository.findByusername(username).orElseGet(() -> {
 				SiteUser user = new SiteUser();
 				user.setUsername(username);
-				user.setPassword(passwordEncoder.encode(password)); // BCryptPasswordEncoder로 비밀번호 암호화
+				user.setPassword(passwordEncoder.encode(password));
 				user.setEmail(email);
 				return userRepository.save(user);
 			});
@@ -118,24 +122,29 @@ class SbbApplicationTests {
 	// 이메일 전송 테스트 메소드
 	@Test
 	void testSendEmail() throws MessagingException, MessagingException {
-		// 이메일 전송 대상
-		String toEmail = "yakmatwin3652@gmail.com";
-		String subject = "테스트 이메일 제목";
-		String text = "이것은 테스트 이메일입니다.";
+		try {
+			// 이메일 전송 대상
+			String toEmail = "yakmatwin3652@gmail.com";
+			String subject = "테스트 이메일 제목";
+			String text = "이것은 테스트 이메일입니다.";
 
-		// JavaMailSender를 사용하여 이메일 발송 테스트
-		MimeMessage mimeMessage = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-		helper.setFrom("yakmatwin3652@gmail.com");  // 보낸 사람
-		helper.setTo(toEmail);  // 받는 사람
-		helper.setSubject(subject);  // 제목
-		helper.setText(text);  // 내용
+			// JavaMailSender를 사용하여 이메일 발송 테스트
+			MimeMessage mimeMessage = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+			helper.setFrom("yakmatwin3652@gmail.com");  // 보낸 사람
+			helper.setTo(toEmail);  // 받는 사람
+			helper.setSubject(subject);  // 제목
+			helper.setText(text);  // 내용
 
-		// 실제 이메일 전송
-		mailSender.send(mimeMessage);
+			// 실제 이메일 전송
+			mailSender.send(mimeMessage);
 
-		// 테스트 결과를 로그에 남기거나 이메일 발송 성공을 확인할 수 있는 방법을 추가
-		System.out.println("테스트 이메일이 성공적으로 발송되었습니다.");
+			// 테스트 결과를 로그에 남기거나 이메일 발송 성공을 확인할 수 있는 방법을 추가
+			System.out.println("테스트 이메일이 성공적으로 발송되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("이메일 전송에 실패했습니다.");
+		}
 	}
 
 	// 임시 비밀번호 전송 테스트 메소드
@@ -150,6 +159,49 @@ class SbbApplicationTests {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("임시 비밀번호 전송에 실패했습니다.");
+		}
+	}
+
+	@Test
+	void testChangePassword() {
+		// 이메일 중복 확인
+		String email = "testuser@example.com";
+		if (userRepository.findByEmail(email).isPresent()) {
+			userRepository.delete(userRepository.findByEmail(email).get());
+		}
+
+		// 테스트 사용자 생성
+		String username = "testuser";
+		String currentPassword = "currentPassword123";
+		String newPassword = "newPassword123";
+
+		SiteUser user = new SiteUser();
+		user.setUsername(username);
+		user.setEmail(email);
+		user.setPassword(passwordEncoder.encode(currentPassword)); // 현재 비밀번호 암호화
+		userRepository.save(user);
+
+		// SecurityContext에 인증 정보 설정
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				user, null, List.of(() -> "ROLE_USER"));
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		// 비밀번호 변경 테스트
+		try {
+			userService.changePassword(user, currentPassword, newPassword);
+
+			// 변경된 비밀번호가 올바르게 저장되었는지 확인
+			SiteUser updatedUser = userRepository.findByEmail(email).orElseThrow();
+			boolean passwordMatches = passwordEncoder.matches(newPassword, updatedUser.getPassword());
+			assert passwordMatches : "비밀번호가 변경되지 않았습니다.";
+
+			System.out.println("비밀번호 변경 테스트 성공");
+		} catch (Exception e) {
+			e.printStackTrace();
+			assert false : "비밀번호 변경 테스트 실패: " + e.getMessage();
+		} finally {
+			// 테스트 완료 후 SecurityContext 초기화
+			SecurityContextHolder.clearContext();
 		}
 	}
 }

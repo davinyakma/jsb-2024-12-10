@@ -3,6 +3,7 @@ package com.mysite.sbb.user;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -85,29 +86,39 @@ public class UserController {
     }
 
     // 비밀번호 변경 처리
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password")
     public String changePassword(
             @RequestParam("currentPassword") String currentPassword,
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmNewPassword") String confirmNewPassword,
-            @AuthenticationPrincipal SiteUser currentUser, // 로그인된 사용자 정보
+            @AuthenticationPrincipal SiteUser currentUser,
             Model model) {
 
         // 새 비밀번호와 확인 비밀번호가 일치하는지 확인
         if (!newPassword.equals(confirmNewPassword)) {
-            model.addAttribute("error", "새 비밀번호가 일치하지 않습니다.");
+            model.addAttribute("error", "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
             return "change_password_form";
         }
 
         try {
             // 서비스 계층에서 비밀번호 변경 로직 호출
-            userService.changePassword(currentPassword, newPassword, currentUser.getEmail());
+            userService.changePassword(currentUser, currentPassword, newPassword);
             model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
-            return "change_password_form"; // 리다이렉트 대신 메시지를 바로 표시
+
+            // 비밀번호 변경 후 success 페이지로 리디렉션
+            return "redirect:/user/change-password-success"; // change_password_success 페이지로 리디렉션
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "change_password_form";
         } catch (Exception e) {
-            // 비밀번호 변경 실패 시 오류 메시지 처리
-            model.addAttribute("error", "비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요.");
+            model.addAttribute("error", "비밀번호 변경 중 문제가 발생했습니다.");
             return "change_password_form";
         }
+    }
+
+    @GetMapping("/change-password-success")
+    public String changePasswordSuccess() {
+        return "change_password_success"; // change_password_success 페이지로 이동
     }
 }
