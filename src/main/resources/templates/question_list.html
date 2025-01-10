@@ -77,7 +77,8 @@
                 <!-- loop.index를 stat.index로 수정 -->
                 <td th:text="${stat.index + 1}"></td>
                 <td class="text-start">
-                    <a th:href="@{|/answer/detail/${answer.id}|}" th:text="${answer.content}"></a>
+                    <a th:href="@{|/question/detail/${answer.question.id}#answers-section|}"
+                       th:text="${answer.content}"></a>
                 </td>
                 <td><span th:if="${answer.author != null}" th:text="${answer.author.username}"></span></td>
                 <td th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></td>
@@ -103,7 +104,8 @@
                 <!-- loop.index를 stat.index로 수정 -->
                 <td th:text="${stat.index + 1}"></td>
                 <td class="text-start">
-                    <a th:href="@{|/comment/detail/${comment.id}|}" th:text="${comment.content}"></a>
+                    <a th:href="@{|/question/detail/${comment.question.id}#comments-section|}"
+                       th:text="${comment.content}"></a>
                 </td>
                 <td><span th:if="${comment.author != null}" th:text="${comment.author.username}"></span></td>
                 <td th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></td>
