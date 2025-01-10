@@ -1,9 +1,9 @@
 package com.mysite.sbb.user;
 
 import com.mysite.sbb.DataNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,15 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
     private final EmailService emailService; // 이메일 전송 서비스
     // 로그를 위한 Logger 객체 생성
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    public UserService(UserRepository userRepository, EmailService emailService) {
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public SiteUser create(String username, String email, String password) {
         SiteUser user = new SiteUser();
@@ -105,5 +114,9 @@ public class UserService {
     // username으로 User를 조회하는 메소드
     public SiteUser getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public Optional<SiteUser> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

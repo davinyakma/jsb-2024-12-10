@@ -20,5 +20,18 @@
       <a th:href="@{/user/change_password}" class="btn btn-link">비밀번호 변경</a>
     </div>
   </form>
+
+  <div class="mt-4">
+    <h4>소셜 로그인</h4>
+    <a href="/login/oauth2/authorization/kakao" class="btn btn-warning w-100 mb-2">
+      <i class="fab fa-kakao"></i> 카카오톡 로그인
+    </a>
+    <a href="/login/oauth2/authorization/google" class="btn btn-danger w-100 mb-2">
+      <i class="fab fa-google"></i> 구글 로그인
+    </a>
+    <a href="/login/oauth2/authorization/naver" class="btn btn-success w-100 mb-2">
+      <i class="fab fa-naver"></i> 네이버 로그인
+    </a>
+  </div>
 </div>
 </html>
