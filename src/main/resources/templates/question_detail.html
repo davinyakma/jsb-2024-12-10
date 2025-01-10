@@ -1,4 +1,11 @@
 <html layout:decorate="~{layout}">
+<head>
+    <!-- SimpleMDE CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simplemde/1.11.0/simplemde.min.css">
+
+    <!-- SimpleMDE JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplemde/1.11.0/simplemde.min.js"></script>
+</head>
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
@@ -116,8 +123,9 @@
 
     <!-- 답변 작성 -->
     <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
+        <!-- 답변 내용 입력 (마크다운을 SimpleMDE로 편집할 수 있도록 적용) -->
         <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="5"></textarea>
-        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" placeholder="답변을 입력하세요" class="form-control" rows="5"></textarea>
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" placeholder="답변을 입력하세요" class="form-control" rows="5" id="answerContent"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 
@@ -194,34 +202,99 @@
     </div>
     <!-- 댓글 작성 -->
     <form th:action="@{/comment/create/question/{id}(id=${question.id})}" method="post" th:object="${commentForm}" class="my-3">
+        <!-- 댓글 내용 입력 (마크다운을 SimpleMDE로 편집할 수 있도록 적용) -->
         <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="5"></textarea>
-        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" placeholder="댓글을 입력하세요" class="form-control" rows="3"></textarea>
-        <button type="submit" class="btn btn-primary mt-2">댓글 작성</button>
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" placeholder="댓글을 입력하세요" class="form-control" rows="5" id="commentContent"></textarea>
+        <input type="submit" value="댓글 작성" class="btn btn-primary mt-2">
     </form>
 </div>
 <script layout:fragment="script" type="text/javascript">
+    // 삭제 버튼 처리
     const delete_elements = document.getElementsByClassName("delete");
     Array.from(delete_elements).forEach(function(element) {
         element.addEventListener('click', function() {
-            if(confirm("정말로 삭제하시겠습니까?")) {
+            if (confirm("정말로 삭제하시겠습니까?")) {
                 location.href = this.dataset.uri;
             };
         });
     });
+
+    // 추천 버튼 처리
     const recommend_elements = document.getElementsByClassName("recommend");
     Array.from(recommend_elements).forEach(function(element) {
         element.addEventListener('click', function() {
-            if(confirm("정말로 추천하시겠습니까?")) {
+            if (confirm("정말로 추천하시겠습니까?")) {
                 location.href = this.dataset.uri;
             };
         });
     });
+
+    // 페이지 링크 처리
     const page_links = document.querySelectorAll(".page-link");
     page_links.forEach(link => {
         link.addEventListener("click", () => {
             const page = link.dataset.page;
             location.href = `?page=${page}`;
         });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const simplemdeComment = new SimpleMDE({
+        element: document.getElementById("commentContent"),
+        autosave: { enabled: true, uniqueId: "commentContent" },
+        spellChecker: false,
+        toolbar: [
+            "bold",        // 굵은 글씨
+            "italic",      // 기울임 글씨
+            "heading",     // 제목
+            "|",           // 구분선
+            "unordered-list", // 리스트
+            "ordered-list",   // 번호 리스트
+            "|",
+            "link",        // 링크
+            "quote",       // 인용문
+            "code",        // 코드 블록
+            "|",
+            "preview",     // 미리보기
+            "side-by-side", // 양쪽 보기
+            "fullscreen"   // 전체 화면
+        ]
+    });
+});
+
+    // SimpleMDE 적용
+    document.addEventListener("DOMContentLoaded", function() {
+        // SimpleMDE 적용 (댓글과 답변에 적용)
+        const simplemdeComment = new SimpleMDE({
+            element: document.getElementById("commentContent"),
+            autosave: { enabled: true, uniqueId: "commentContent" },
+            spellChecker: false,
+            previewRender: function(plainText) {
+                // SimpleMDE 기본 미리보기 렌더링
+                return SimpleMDE.prototype.markdown(plainText);
+            }
+        });
+
+        const simplemdeAnswer = new SimpleMDE({
+            element: document.getElementById("answerContent"),
+            autosave: { enabled: true, uniqueId: "answerContent" },
+            spellChecker: false,
+            previewRender: function(plainText) {
+                // SimpleMDE 기본 미리보기 렌더링
+                return SimpleMDE.prototype.markdown(plainText);
+            }
+        });
+
+        // SimpleMDE 미리보기 활성화
+        function enablePreview(simplemdeInstance) {
+            const previewButton = simplemdeInstance.toolbarElements.preview;
+            if (previewButton) {
+                previewButton.click(); // 미리보기 활성화
+            }
+        }
+
+        enablePreview(simplemdeComment);
+        enablePreview(simplemdeAnswer);
     });
 </script>
 </html>
